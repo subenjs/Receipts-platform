@@ -1,0 +1,2972 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Evdeki Malzemelerle Tarif Önerici</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #ff6b6b;
+      --secondary: #4ecdc4;
+      --accent: #ffe66d;
+      --dark: #2d3436;
+      --light: #f7f9fc;
+      --gray: #6c757d;
+      --success: #1dd1a1;
+      --warning: #ffc048;
+      --danger: #ff6b6b;
+      --light-gray: #e9ecef;
+
+      --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.15);
+      --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+      --transition: all 0.3s ease;
+      --transition-fast: all 0.2s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* HEADER – base (desktop/tablet) */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: var(--shadow-sm);
+      padding: 0.35rem 1.2rem;
+      z-index: 100;
+      color: white;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .header-left {
+      flex: 1 1 600px;
+      min-width: 280px;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .header h1 i {
+      font-size: 1.4rem;
+    }
+
+    .header p {
+      opacity: 0.95;
+      font-size: 0.9rem;
+      max-width: 100%;
+      margin-bottom: 0.2rem;
+    }
+
+    .selected-ingredients {
+      margin-top: 0.15rem;
+      font-size: 0.8rem;
+      max-width: 100%;
+    }
+
+    .selected-ingredients span {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      margin-right: 0.3rem;
+      display: inline-block;
+      margin-bottom: 0.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .filter-info {
+      margin-top: 0.15rem;
+      font-size: 0.75rem;
+      opacity: 0.95;
+    }
+
+    .filter-mode {
+      display: inline-flex;
+      gap: 0.3rem;
+      margin-left: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      padding: 0.1rem 0.6rem;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.7rem;
+      transition: var(--transition-fast);
+    }
+
+    .mode-btn.active {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-shrink: 0;
+      gap: 0.4rem;
+    }
+
+    .language-selector {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .language-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.35rem 0.7rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition-fast);
+    }
+
+    .language-btn:hover,
+    .language-btn.active {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 300px;
+      background: white;
+      padding: 3.4rem 1.5rem 2rem;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .ingredient-category {
+      margin-bottom: 2rem;
+    }
+
+    .ingredient-category h3 {
+      color: var(--primary);
+      margin-bottom: 0.9rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ingredient-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.7rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 12px;
+      transition: var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ingredient-option::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: var(--secondary);
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.3s ease;
+    }
+
+    .ingredient-option:hover {
+      background: rgba(78, 205, 196, 0.08);
+    }
+
+    .ingredient-option:hover::before {
+      transform: scaleY(1);
+    }
+
+    .ingredient-option input {
+      margin-right: 0.7rem;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .ingredient-option label {
+      cursor: pointer;
+      flex-grow: 1;
+      font-size: 0.95rem;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 4.5rem 2rem 2rem;
+      margin-left: 300px;
+      max-width: calc(100% - 300px);
+      margin: 0 auto 0 300px;
+    }
+
+    .main-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .result-info {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .recipe-card {
+      background: white;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .recipe-card:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .recipe-card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .recipe-card:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+
+    .recipe-card:nth-child(4) {
+      animation-delay: 0.2s;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .recipe-image {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .recipe-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .difficulty-easy {
+      background: linear-gradient(135deg, var(--success), #10ac84);
+    }
+
+    .difficulty-medium {
+      background: linear-gradient(135deg, var(--warning), #ff9f43);
+    }
+
+    .difficulty-hard {
+      background: linear-gradient(135deg, var(--danger), #ee5a6f);
+    }
+
+    .recipe-content {
+      padding: 1.4rem 1.5rem 1.5rem;
+    }
+
+    .recipe-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .recipe-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .recipe-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .recipe-description {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+
+    .recipe-ingredients h4 {
+      font-size: 0.95rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .ingredient-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .ingredient-tag {
+      background: linear-gradient(135deg, var(--light), var(--light-gray));
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .view-details-btn {
+      margin-top: 1.1rem;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), #ee5a6f);
+      border: none;
+      color: #fff;
+      padding: 0.7rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      transition: var(--transition-fast);
+    }
+
+    .view-details-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 22px rgba(255, 107, 107, 0.55);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      color: var(--gray);
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: var(--light-gray);
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.7rem;
+      color: var(--dark);
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 22px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      height: 260px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 22px 22px 0 0;
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-fast);
+    }
+
+    .close-modal:hover {
+      background: white;
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 2rem 2.4rem 2.2rem;
+    }
+
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.9rem;
+    }
+
+    .modal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.6rem;
+      margin-bottom: 1.8rem;
+      color: var(--gray);
+      font-size: 0.95rem;
+    }
+
+    .modal-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-section {
+      margin-bottom: 2rem;
+    }
+
+    .modal-section h3 {
+      font-size: 1.3rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .ingredients-list {
+      list-style: none;
+    }
+
+    .ingredients-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      font-size: 0.98rem;
+    }
+
+    .ingredients-list li::before {
+      content: "✓";
+      color: var(--success);
+      margin-right: 0.8rem;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .instructions-list {
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .instructions-list li {
+      counter-increment: step;
+      margin-bottom: 1.2rem;
+      padding-left: 2.8rem;
+      position: relative;
+      font-size: 0.98rem;
+    }
+
+    .instructions-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* MOBILE TOGGLE */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      font-size: 1.4rem;
+      box-shadow: 0 9px 24px rgba(0, 0, 0, 0.25);
+      z-index: 150;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .mobile-menu-toggle:hover {
+      transform: scale(1.06);
+    }
+
+    /* TABLET */
+    @media (max-width: 992px) {
+      .header {
+        padding: 0.3rem 1rem;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+        padding-top: 3.2rem;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 4.2rem 1.5rem 2rem;
+        max-width: 100%;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .selected-ingredients {
+        max-width: 100%;
+      }
+    }
+
+    /* PHONE GENEL */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0.3rem 0.8rem;
+      }
+
+      /* Header satır sayısını azalt: row, no wrap */
+      .header-content {
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .header-left {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .header-right {
+        flex-shrink: 0;
+        align-self: center;
+      }
+
+      .header h1 {
+        font-size: 1.25rem;
+        margin-bottom: 0.05rem;
+      }
+
+      .header h1 i {
+        font-size: 1.15rem;
+      }
+
+      /* SUBTITLE MOBILE'DA YOK – header çok incelir */
+      .header p[data-i18n="subtitle"] {
+        display: none;
+      }
+
+      /* EŞLEŞME MODU MOBILE'DA GİZLİ – en çok yer kaplayan kısım buydu */
+      .filter-info {
+        display: none;
+      }
+
+      .selected-ingredients {
+        font-size: 0.7rem;
+        margin-top: 0.1rem;
+        white-space: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.2rem;
+      }
+
+      .selected-ingredients span {
+        margin-bottom: 0;
+        padding: 0.08rem 0.45rem;
+      }
+
+      .language-selector {
+        gap: 0.25rem;
+      }
+
+      .language-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+      }
+
+      .main-content {
+        padding: 3.8rem 1rem 2rem;
+      }
+
+      .modal-body {
+        padding: 1.6rem 1.5rem 1.8rem;
+      }
+
+      .modal-title {
+        font-size: 1.6rem;
+      }
+
+      .instructions-list li {
+        padding-left: 2.4rem;
+      }
+
+      .recipe-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.3rem;
+      }
+    }
+
+    /* KÜÇÜK TELEFONLAR (S8+, SE, 360–400px genişlik) */
+    @media (max-width: 480px) {
+      .header {
+        padding: 0.25rem 0.6rem;
+      }
+
+      .header h1 {
+        font-size: 1.15rem;
+      }
+
+      .header h1 i {
+        font-size: 1.05rem;
+      }
+
+      .selected-ingredients {
+        font-size: 0.68rem;
+      }
+
+      .language-btn {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.72rem;
+      }
+
+      .main-content {
+        padding: 3.6rem 0.9rem 2rem;
+      }
+
+      .recipe-grid {
+        grid-template-columns: 1fr;
+        gap: 1.1rem;
+      }
+
+      .recipe-image {
+        height: 180px;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 3.2rem 1rem 2rem;
+      }
+
+      .ingredient-option {
+        padding: 0.4rem;
+      }
+
+      .mobile-menu-toggle {
+        width: 56px;
+        height: 56px;
+        bottom: 16px;
+        right: 16px;
+      }
+    }
+
+    /* YÜKSEKLİĞİ KÜÇÜK CİHAZLAR (S8+, SE – header ekranı kaplamasın) */
+    @media (max-height: 700px) and (max-width: 480px) {
+
+      /* Zaten subtitle + filter-info yok, sadece biraz daha sıkıştır */
+      .header {
+        padding-top: 0.2rem;
+        padding-bottom: 0.2rem;
+      }
+
+      .recipe-image {
+        height: 160px;
+      }
+
+      .modal-header {
+        height: 200px;
+      }
+    }
+
+    @media (min-width: 1400px) {
+      .main-wrapper {
+        padding: 0 1rem;
+      }
+
+      .main-content {
+        padding: 4.8rem 4rem 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>
+          <i class="fas fa-utensils"></i>
+          <span data-i18n="title">Evdeki Malzemelerle Tarif Önerici</span>
+        </h1>
+        <p data-i18n="subtitle">
+          Evde ne varsa onu seç, biz sana uyan tarifleri gösterelim. Öğrenci, bekar
+          veya üşengeç mod: hepsine uygun tarifler burada.
+        </p>
+        <div class="selected-ingredients">
+          <strong data-i18n="selectedIngredients">Seçili malzemeler:</strong>
+          <span id="selectedList" data-i18n="none">Hiçbiri</span>
+          <div class="filter-info">
+            <span data-i18n="matchMode">Eşleşme modu:</span>
+            <div class="filter-mode">
+              <button class="mode-btn active" data-mode="any" data-i18n="anyMode">
+                Herhangi biri yeter
+              </button>
+              <button class="mode-btn" data-mode="all" data-i18n="allMode">
+                Hepsi olsun
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="language-selector">
+          <button class="language-btn active" data-lang="tr">TR</button>
+          <button class="language-btn" data-lang="en">EN</button>
+          <button class="language-btn" data-lang="az">AZ</button>
+          <button class="language-btn" data-lang="ru">RU</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="ingredient-category">
+        <h3><i class="fas fa-drumstick-bite"></i> <span data-i18n="meatCategory">Et & Tavuk</span></h3>
+        <div class="ingredient-option">
+          <input type="checkbox" id="tavuk" value="tavuk" />
+          <label for="tavuk" data-i18n="tavuk">Tavuk</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="kiyma" value="kiyma" />
+          <label for="kiyma" data-i18n="kiyma">Kıyma</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="dana" value="dana" />
+          <label for="dana" data-i18n="dana">Dana Et</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="kuzu" value="kuzu" />
+          <label for="kuzu" data-i18n="kuzu">Kuzu Et</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="balik" value="balik" />
+          <label for="balik" data-i18n="balik">Balık</label>
+        </div>
+      </div>
+
+      <div class="ingredient-category">
+        <h3><i class="fas fa-carrot"></i> <span data-i18n="vegetablesCategory">Sebzeler</span></h3>
+        <div class="ingredient-option">
+          <input type="checkbox" id="domates" value="domates" />
+          <label for="domates" data-i18n="domates">Domates</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="biber" value="biber" />
+          <label for="biber" data-i18n="biber">Biber</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="sogan" value="sogan" />
+          <label for="sogan" data-i18n="sogan">Soğan</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="patates" value="patates" />
+          <label for="patates" data-i18n="patates">Patates</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="havuc" value="havuc" />
+          <label for="havuc" data-i18n="havuc">Havuç</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="patlican" value="patlican" />
+          <label for="patlican" data-i18n="patlican">Patlıcan</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="ispanak" value="ispanak" />
+          <label for="ispanak" data-i18n="ispanak">Ispanak</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="mantar" value="mantar" />
+          <label for="mantar" data-i18n="mantar">Mantar</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="sarimsak" value="sarimsak" />
+          <label for="sarimsak" data-i18n="sarimsak">Sarımsak</label>
+        </div>
+      </div>
+
+      <div class="ingredient-category">
+        <h3><i class="fas fa-bread-slice"></i> <span data-i18n="grainsCategory">Tahıl & Bakliyat</span></h3>
+        <div class="ingredient-option">
+          <input type="checkbox" id="pirinc" value="pirinc" />
+          <label for="pirinc" data-i18n="pirinc">Pirinç (Pilavlık)</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="bulgur" value="bulgur" />
+          <label for="bulgur" data-i18n="bulgur">Bulgur</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="makarna" value="makarna" />
+          <label for="makarna" data-i18n="makarna">Makarna</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="mercimek" value="mercimek" />
+          <label for="mercimek" data-i18n="mercimek">Mercimek</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="nohut" value="nohut" />
+          <label for="nohut" data-i18n="nohut">Nohut</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="kuru" value="kuru" />
+          <label for="kuru" data-i18n="kuru">Kuru Fasulye</label>
+        </div>
+      </div>
+
+      <div class="ingredient-category">
+        <h3><i class="fas fa-cheese"></i> <span data-i18n="dairyCategory">Süt Ürünleri</span></h3>
+        <div class="ingredient-option">
+          <input type="checkbox" id="yogurt" value="yogurt" />
+          <label for="yogurt" data-i18n="yogurt">Yoğurt</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="peynir" value="peynir" />
+          <label for="peynir" data-i18n="peynir">Peynir</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="kasar" value="kasar" />
+          <label for="kasar" data-i18n="kasar">Kaşar Peyniri</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="tereyagi" value="tereyagi" />
+          <label for="tereyagi" data-i18n="tereyagi">Tereyağı</label>
+        </div>
+      </div>
+
+      <div class="ingredient-category">
+        <h3><i class="fas fa-egg"></i> <span data-i18n="otherCategory">Diğer</span></h3>
+        <div class="ingredient-option">
+          <input type="checkbox" id="yumurta" value="yumurta" />
+          <label for="yumurta" data-i18n="yumurta">Yumurta</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="zeytinyagi" value="zeytinyagi" />
+          <label for="zeytinyagi" data-i18n="zeytinyagi">Zeytinyağı</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="limon" value="limon" />
+          <label for="limon" data-i18n="limon">Limon</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="salca" value="salca" />
+          <label for="salca" data-i18n="salca">Salça</label>
+        </div>
+        <div class="ingredient-option">
+          <input type="checkbox" id="baharat" value="baharat" />
+          <label for="baharat" data-i18n="baharat">Baharatlar</label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <div class="main-wrapper">
+        <div id="resultInfo" class="result-info"></div>
+        <div id="recipeGrid" class="recipe-grid"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <i class="fas fa-search"></i>
+          <h3 data-i18n="noRecipesTitle">Uygun tarif bulunamadı</h3>
+          <p data-i18n="noRecipesDesc">
+            Seçtiğin malzemelerle uyumlu bir tarif bulamadık. Birkaç malzemeyi kaldırmayı veya yeni malzeme eklemeyi
+            dene.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MOBILE TOGGLE -->
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <i class="fas fa-filter"></i>
+  </button>
+
+  <!-- MODAL -->
+  <div class="modal" id="recipeModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalHeader">
+        <button class="close-modal" id="closeModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      tr: {
+        title: "Evdeki Malzemelerle Tarif Önerici",
+        subtitle: "Evde ne varsa onu seç, biz sana uyan tarifleri gösterelim. Öğrenci, bekar veya üşengeç mod: hepsine uygun tarifler burada.",
+        selectedIngredients: "Seçili malzemeler:",
+        none: "Hiçbiri",
+        matchMode: "Eşleşme modu:",
+        anyMode: "Herhangi biri yeter",
+        allMode: "Hepsi olsun",
+        meatCategory: "Et & Tavuk",
+        vegetablesCategory: "Sebzeler",
+        grainsCategory: "Tahıl & Bakliyat",
+        dairyCategory: "Süt Ürünleri",
+        otherCategory: "Diğer",
+        tavuk: "Tavuk",
+        kiyma: "Kıyma",
+        dana: "Dana Et",
+        kuzu: "Kuzu Et",
+        balik: "Balık",
+        domates: "Domates",
+        biber: "Biber",
+        sogan: "Soğan",
+        patates: "Patates",
+        havuc: "Havuç",
+        patlican: "Patlıcan",
+        ispanak: "Ispanak",
+        mantar: "Mantar",
+        sarimsak: "Sarımsak",
+        pirinc: "Pirinç (Pilavlık)",
+        bulgur: "Bulgur",
+        makarna: "Makarna",
+        mercimek: "Mercimek",
+        nohut: "Nohut",
+        kuru: "Kuru Fasulye",
+        yogurt: "Yoğurt",
+        peynir: "Peynir",
+        kasar: "Kaşar Peyniri",
+        tereyagi: "Tereyağı",
+        yumurta: "Yumurta",
+        zeytinyagi: "Zeytinyağı",
+        limon: "Limon",
+        salca: "Salça",
+        baharat: "Baharatlar",
+        noRecipesTitle: "Uygun tarif bulunamadı",
+        noRecipesDesc: "Seçtiğin malzemelerle uyumlu bir tarif bulamadık. Birkaç malzemeyi kaldırmayı veya yeni malzeme eklemeyi dene.",
+        ingredients: "Malzemeler",
+        description: "Açıklama",
+        instructions: "Nasıl Yapılır?",
+        viewDetails: "Detayları Gör",
+        minutes: "dk",
+        recipesFound: "tarif bulundu.",
+        easy: "Kolay",
+        medium: "Orta",
+        hard: "Zor"
+      },
+      en: {
+        title: "Home Ingredient Recipe Recommender",
+        subtitle: "Select what you have at home, we'll show you suitable recipes. Student, single or lazy mode: suitable recipes for all are here.",
+        selectedIngredients: "Selected ingredients:",
+        none: "None",
+        matchMode: "Match mode:",
+        anyMode: "Any is enough",
+        allMode: "All must be included",
+        meatCategory: "Meat & Poultry",
+        vegetablesCategory: "Vegetables",
+        grainsCategory: "Grains & Legumes",
+        dairyCategory: "Dairy Products",
+        otherCategory: "Others",
+        tavuk: "Chicken",
+        kiyma: "Minced Meat",
+        dana: "Beef",
+        kuzu: "Lamb",
+        balik: "Fish",
+        domates: "Tomato",
+        biber: "Pepper",
+        sogan: "Onion",
+        patates: "Potato",
+        havuc: "Carrot",
+        patlican: "Eggplant",
+        ispanak: "Spinach",
+        mantar: "Mushroom",
+        sarimsak: "Garlic",
+        pirinc: "Rice",
+        bulgur: "Bulgur",
+        makarna: "Pasta",
+        mercimek: "Lentil",
+        nohut: "Chickpea",
+        kuru: "Dry Beans",
+        yogurt: "Yogurt",
+        peynir: "Cheese",
+        kasar: "Cheddar Cheese",
+        tereyagi: "Butter",
+        yumurta: "Egg",
+        zeytinyagi: "Olive Oil",
+        limon: "Lemon",
+        salca: "Tomato Paste",
+        baharat: "Spices",
+        noRecipesTitle: "No suitable recipes found",
+        noRecipesDesc: "We couldn't find a recipe that matches your selected ingredients. Try removing some ingredients or adding new ones.",
+        ingredients: "Ingredients",
+        description: "Description",
+        instructions: "How to Make?",
+        viewDetails: "View Details",
+        minutes: "min",
+        recipesFound: "recipes found.",
+        easy: "Easy",
+        medium: "Medium",
+        hard: "Hard"
+      },
+      az: {
+        title: "Evdəki Məhsullarla Resept Təklifçisi",
+        subtitle: "Evdə nə varsa onu seç, biz sənə uyğun reseptləri göstərək. Tələbə, subay və ya tənbəl rejim: hamısı üçün uyğun reseptlər buradadır.",
+        selectedIngredients: "Seçilmiş məhsullar:",
+        none: "Heç biri",
+        matchMode: "Uyğunluq rejimi:",
+        anyMode: "Hər hansı biri kifayətdir",
+        allMode: "Hamısı olsun",
+        meatCategory: "Ət & Toyuq",
+        vegetablesCategory: "Tərəvəzlər",
+        grainsCategory: "Taxıl & Paxlalılar",
+        dairyCategory: "Süd Məhsulları",
+        otherCategory: "Digər",
+        tavuk: "Toyuq",
+        kiyma: "Qiymə",
+        dana: "Mal Əti",
+        kuzu: "Quzu Əti",
+        balik: "Balıq",
+        domates: "Pomidor",
+        biber: "Bibər",
+        sogan: "Soğan",
+        patates: "Kartof",
+        havuc: "Yerkökü",
+        patlican: "Badımcan",
+        ispanak: "İspanaq",
+        mantar: "Göbələk",
+        sarimsak: "Sarımsaq",
+        pirinc: "Düyü",
+        bulgur: "Bulgur",
+        makarna: "Makaron",
+        mercimek: "Mərci",
+        nohut: "Nohud",
+        kuru: "Quru lobya",
+        yogurt: "Yoğurt",
+        peynir: "Pendir",
+        kasar: "Kaşar Pendiri",
+        tereyagi: "Kərə yağı",
+        yumurta: "Yumurta",
+        zeytinyagi: "Zeytun yağı",
+        limon: "Limon",
+        salca: "Tomat pastası",
+        baharat: "Ədviyyatlar",
+        noRecipesTitle: "Uyğun resept tapılmadı",
+        noRecipesDesc: "Seçdiyin məhsullarla uyğun resept tapılmadı. Bir neçə məhsulu silməyi və ya yenisini əlavə etməyi yoxla.",
+        ingredients: "Məhsullar",
+        description: "Təsvir",
+        instructions: "Necə Hazırlanır?",
+        viewDetails: "Detallara Bax",
+        minutes: "dəq",
+        recipesFound: "resept tapıldı.",
+        easy: "Asan",
+        medium: "Orta",
+        hard: "Çətin"
+      },
+      ru: {
+        title: "Рецепты из домашних ингредиентов",
+        subtitle: "Выберите, что есть дома, и мы покажем подходящие рецепты. Студент, холостяк или ленивый режим — здесь есть варианты для всех.",
+        selectedIngredients: "Выбранные ингредиенты:",
+        none: "Ничего",
+        matchMode: "Режим совпадения:",
+        anyMode: "Любой подходит",
+        allMode: "Все должны совпасть",
+        meatCategory: "Мясо & Птица",
+        vegetablesCategory: "Овощи",
+        grainsCategory: "Зерновые & Бобовые",
+        dairyCategory: "Молочные продукты",
+        otherCategory: "Прочее",
+        tavuk: "Курица",
+        kiyma: "Фарш",
+        dana: "Говядина",
+        kuzu: "Баранина",
+        balik: "Рыба",
+        domates: "Помидор",
+        biber: "Перец",
+        sogan: "Лук",
+        patates: "Картофель",
+        havuc: "Морковь",
+        patlican: "Баклажан",
+        ispanak: "Шпинат",
+        mantar: "Грибы",
+        sarimsak: "Чеснок",
+        pirinc: "Рис",
+        bulgur: "Булгур",
+        makarna: "Макароны",
+        mercimek: "Чечевица",
+        nohut: "Нут",
+        kuru: "Фасоль",
+        yogurt: "Йогурт",
+        peynir: "Сыр",
+        kasar: "Сыр кашар",
+        tereyagi: "Сливочное масло",
+        yumurta: "Яйцо",
+        zeytinyagi: "Оливковое масло",
+        limon: "Лимон",
+        salca: "Томатная паста",
+        baharat: "Специи",
+        noRecipesTitle: "Подходящих рецептов не найдено",
+        noRecipesDesc: "Мы не нашли рецептов под выбранные ингредиенты. Уберите часть ингредиентов или добавьте другие.",
+        ingredients: "Ингредиенты",
+        description: "Описание",
+        instructions: "Как приготовить?",
+        viewDetails: "Подробнее",
+        minutes: "мин",
+        recipesFound: "рецептов найдено.",
+        easy: "Легко",
+        medium: "Средне",
+        hard: "Сложно"
+      }
+    };
+
+    const recipes = [
+      {
+        id: 1,
+        title: {
+          tr: "Tavuk Sote",
+          en: "Chicken Sauté",
+          az: "Toyuq Sote",
+          ru: "Куриное соте"
+        },
+        ingredients: ["tavuk", "sogan", "biber", "domates", "zeytinyagi", "baharat"],
+        time: 30,
+        difficulty: "easy",
+        image: "tavuk_sote.png",
+        description: {
+          tr: "Tavuk, soğan ve biberle hazırlanan pratik, ev tipi tavada yemek.",
+          en: "A practical pan dish made with chicken, onion and peppers.",
+          az: "Toyuq, soğan və bibərlə hazırlanan praktik ev yeməyi.",
+          ru: "Практичное блюдо на сковороде с курицей, луком и перцем."
+        },
+        instructions: {
+          tr: [
+            "Tavuk göğsünü küp küp doğrayın.",
+            "Soğan ve biberleri doğrayın.",
+            "Tavada zeytinyağını ısıtıp önce soğanı, sonra biberi soteleyin.",
+            "Tavukları ekleyip rengi dönene kadar pişirin.",
+            "Doğranmış domates ve baharatları ekleyip suyunu çekene kadar pişirin."
+          ],
+          en: [
+            "Dice the chicken breast.",
+            "Chop the onion and peppers.",
+            "Heat olive oil in a pan, sauté the onion then the peppers.",
+            "Add the chicken and cook until it changes color.",
+            "Add chopped tomatoes and spices, cook until the sauce thickens."
+          ],
+          az: [
+            "Toyuq döşünü kub-kub doğrayın.",
+            "Soğan və bibərləri doğrayın.",
+            "Tavada zeytun yağını qızdırıb əvvəl soğanı, sonra bibəri qovurun.",
+            "Toyuğu əlavə edib rəngi dəyişənə qədər bişirin.",
+            "Doğranmış pomidor və ədviyyatları əlavə edib suyu çəkilənə qədər bişirin."
+          ],
+          ru: [
+            "Нарежьте куриную грудку кубиками.",
+            "Нарежьте лук и перец.",
+            "Разогрейте оливковое масло, обжарьте лук, затем перец.",
+            "Добавьте курицу и готовьте до изменения цвета.",
+            "Добавьте нарезанные помидоры и специи, тушите до загустения соуса."
+          ]
+        }
+      },
+      {
+        id: 2,
+        title: {
+          tr: "Klasik Köfte",
+          en: "Classic Meatballs",
+          az: "Klassik Köftə",
+          ru: "Классические тефтели"
+        },
+        ingredients: ["kiyma", "sogan", "yumurta", "baharat"],
+        time: 40,
+        difficulty: "medium",
+        image: "klasik_kofte.png",
+        description: {
+          tr: "Dışı kızarmış, içi sulu klasik ev köftesi.",
+          en: "Classic homemade meatballs, crispy outside and juicy inside.",
+          az: "Çölü qızarmış, içi sulu klassik ev köftəsi.",
+          ru: "Классические домашние тефтели с румяной корочкой и сочной серединой."
+        },
+        instructions: {
+          tr: [
+            "Soğanı rendeleyip suyunu sıkın.",
+            "Kıymaya soğan, yumurta ve baharatları ekleyip güzelce yoğurun.",
+            "Harçtan parçalar koparıp köfte şekli verin.",
+            "Tavada az yağ ile veya ızgarada önlü arkalı pişirin.",
+            "Sıcak olarak servis edin."
+          ],
+          en: [
+            "Grate the onion and squeeze out its juice.",
+            "Add onion, egg and spices to the minced meat and knead well.",
+            "Shape the mixture into meatballs.",
+            "Cook in a pan with a bit of oil or on the grill, both sides.",
+            "Serve hot."
+          ],
+          az: [
+            "Soğanı sürtgəcdən keçirib suyunu sıxın.",
+            "Qiyməyə soğan, yumurta və ədviyyatları əlavə edib yaxşıca yoğurun.",
+            "Əldə etdiyiniz kütlədən köftə forması verin.",
+            "Az yağda tavada və ya qrildə önlü-arxalı bişirin.",
+            "İsti şəkildə servis edin."
+          ],
+          ru: [
+            "Натрите лук и отожмите сок.",
+            "Добавьте лук, яйцо и специи к фаршу, хорошо вымесите.",
+            "Сформируйте котлеты.",
+            "Обжарьте с двух сторон на сковороде с небольшим количеством масла или на гриле.",
+            "Подавайте горячими."
+          ]
+        }
+      },
+      {
+        id: 3,
+        title: {
+          tr: "Domatesli Spagetti",
+          en: "Tomato Spaghetti",
+          az: "Pomidorlu Spagetti",
+          ru: "Спагетти с томатным соусом"
+        },
+        ingredients: ["makarna", "domates", "sarimsak", "zeytinyagi", "baharat"],
+        time: 25,
+        difficulty: "easy",
+        image: "domatesli_spagetti.png",
+        description: {
+          tr: "Öğrenci dostu, hızlı ve ucuz makarna tarifi.",
+          en: "Student-friendly quick and cheap pasta recipe.",
+          az: "Tələbə dostu, sürətli və ucuz makaron resepti.",
+          ru: "Быстрый и недорогой студенческий рецепт пасты."
+        },
+        instructions: {
+          tr: [
+            "Makarna için su kaynatıp tuz ekleyin ve makarnayı haşlayın.",
+            "Ayrı bir tavada zeytinyağını ısıtıp sarımsağı kokusu çıkana kadar soteleyin.",
+            "Doğranmış domatesi ekleyip sos kıvamına gelene kadar pişirin.",
+            "Baharatları ekleyin ve haşlanan makarnayı süzüp sosla karıştırın.",
+            "Sıcak servis edin."
+          ],
+          en: [
+            "Boil water with salt and cook the spaghetti.",
+            "Heat olive oil in a pan, sauté garlic until fragrant.",
+            "Add chopped tomatoes and cook into a sauce.",
+            "Add spices, drain the pasta and toss with the sauce.",
+            "Serve hot."
+          ],
+          az: [
+            "Duzlu suyu qaynadıb makaronu bişirin.",
+            "Ayrı tavada zeytun yağını qızdırıb sarımsağı qoxu çıxana qədər qovurun.",
+            "Doğranmış pomidoru əlavə edib sous halına gələnə qədər bişirin.",
+            "Ədviyyatları əlavə edin, makaronu süzüb sousla qarışdırın.",
+            "İsti servis edin."
+          ],
+          ru: [
+            "Отварите спагетти в подсоленной воде.",
+            "Разогрейте оливковое масло, обжарьте чеснок до аромата.",
+            "Добавьте нарезанные помидоры и тушите до соусной консистенции.",
+            "Добавьте специи, смешайте пасту с соусом.",
+            "Подавайте горячим."
+          ]
+        }
+      },
+      {
+        id: 4,
+        title: {
+          tr: "Mercimek Çorbası",
+          en: "Lentil Soup",
+          az: "Mərci Şorbası",
+          ru: "Чечевичный суп"
+        },
+        ingredients: ["mercimek", "sogan", "havuc", "tereyagi", "baharat"],
+        time: 35,
+        difficulty: "easy",
+        image: "mercimek_corbasi.png",
+        description: {
+          tr: "Her evin klasiği, besleyici ve ekonomik mercimek çorbası.",
+          en: "A nutritious and budget-friendly lentil soup classic.",
+          az: "Qidalı və sərfəli klassik mərci şorbası.",
+          ru: "Питательный и бюджетный классический чечевичный суп."
+        },
+        instructions: {
+          tr: [
+            "Soğan ve havucu doğrayın, tereyağında soteleyin.",
+            "Yıkanmış mercimeği ekleyip üzerine su ilave edin.",
+            "Mercimekler yumuşayana kadar kaynatın.",
+            "İsteğe göre blenderdan geçirin ve baharat ekleyin.",
+            "Kısık ateşte 5 dakika daha kaynatıp servis edin."
+          ],
+          en: [
+            "Chop onion and carrot, sauté in butter.",
+            "Add washed lentils and water.",
+            "Boil until lentils are soft.",
+            "Blend if you like and add spices.",
+            "Simmer for 5 more minutes and serve."
+          ],
+          az: [
+            "Soğan və yerkökünü doğrayıb kərə yağında qovurun.",
+            "Yuyulmuş mərci və suyu əlavə edin.",
+            "Mərci yumşalana qədər bişirin.",
+            "İstəyə görə blenderdən keçirin, ədviyyat əlavə edin.",
+            "Yavaş odda 5 dəqiqə daha qaynadıb servis edin."
+          ],
+          ru: [
+            "Нарежьте лук и морковь, обжарьте на сливочном масле.",
+            "Добавьте промытую чечевицу и воду.",
+            "Варите до мягкости чечевицы.",
+            "По желанию пюрируйте блендером и добавьте специи.",
+            "Потомите ещё 5 минут и подавайте."
+          ]
+        }
+      },
+      {
+        id: 5,
+        title: {
+          tr: "Patates Kızartması",
+          en: "French Fries",
+          az: "Kartof Qızartması",
+          ru: "Картофель фри"
+        },
+        ingredients: ["patates", "tereyagi", "baharat"],
+        time: 20,
+        difficulty: "easy",
+        image: "patates_kizartmasi.png",
+        description: {
+          tr: "Ev yapımı, dışı çıtır içi yumuşak patates kızartması.",
+          en: "Homemade fries, crispy outside, soft inside.",
+          az: "Ev üsulu, çöldən xırt-xırt, içi yumşaq kartof qızartması.",
+          ru: "Домашний картофель фри с хрустящей корочкой и мягкой серединой."
+        },
+        instructions: {
+          tr: [
+            "Patatesleri soyup ince veya kalın dilimler halinde doğrayın.",
+            "Nişastasını atması için suda bekletip kurulayın.",
+            "Kızgın yağda altın rengi alana kadar kızartın.",
+            "Tereyağını eritip kızaran patateslerin üzerine gezdirin.",
+            "Tuz ve baharat ekleyip servis edin."
+          ],
+          en: [
+            "Peel and slice the potatoes thin or thick.",
+            "Soak in water to remove starch, then dry.",
+            "Fry in hot oil until golden.",
+            "Melt butter and drizzle over the fries.",
+            "Add salt and spices, then serve."
+          ],
+          az: [
+            "Kartofu soyub nazik və ya qalın dilimlərə doğrayın.",
+            "Nişastası çıxsın deyə suda saxlayın, sonra qurulayın.",
+            "Qızğın yağda qızılı rəng alana qədər qızardın.",
+            "Kərə yağını əridib kartofun üzərinə gəzdirin.",
+            "Duz və ədviyyat əlavə edib servis edin."
+          ],
+          ru: [
+            "Очистите картофель и нарежьте ломтиками.",
+            "Замочите в воде, затем обсушите.",
+            "Обжарьте во фритюре до золотистого цвета.",
+            "Полейте растопленным сливочным маслом.",
+            "Посолите, приправьте и подавайте."
+          ]
+        }
+      },
+      {
+        id: 6,
+        title: {
+          tr: "Yoğurtlu Makarna",
+          en: "Yogurt Pasta",
+          az: "Yoğurtlu Makaron",
+          ru: "Макароны с йогуртом"
+        },
+        ingredients: ["makarna", "yogurt", "sarimsak", "tereyagi", "baharat"],
+        time: 20,
+        difficulty: "easy",
+        image: "yogurtlu_makarna.png",
+        description: {
+          tr: "Sarımsaklı yoğurt ve kızgın tereyağ ile pratik makarna.",
+          en: "Pasta with garlicky yogurt and hot butter.",
+          az: "Sarımsaqlı yoğurt və isti kərə yağı ilə praktiki makaron.",
+          ru: "Паста с чесночным йогуртом и горячим сливочным маслом."
+        },
+        instructions: {
+          tr: [
+            "Makarna haşlayın ve süzün.",
+            "Yoğurdu ezilmiş sarımsak ve tuzla karıştırın.",
+            "Tereyağını yakmadan kızdırın, isterseniz pul biber ekleyin.",
+            "Makarnayı yoğurtla karıştırın veya üzerine dökün.",
+            "Üzerine kızgın tereyağını gezdirip servis edin."
+          ],
+          en: [
+            "Boil the pasta and drain.",
+            "Mix yogurt with crushed garlic and salt.",
+            "Melt and heat butter, optionally add chili flakes.",
+            "Mix pasta with the yogurt or top with it.",
+            "Drizzle hot butter on top and serve."
+          ],
+          az: [
+            "Makaronu bişirib süzün.",
+            "Yoğurdu əzilmiş sarımsaq və duzla qarışdırın.",
+            "Kərə yağını yandırmadan qızdırın, istəsəniz pul bibər əlavə edin.",
+            "Makaronu yoğurtla qarışdırın və ya üzərinə qoyun.",
+            "Üzərinə qızğın kərə yağını gəzdirib servis edin."
+          ],
+          ru: [
+            "Отварите макароны и откиньте на дуршлаг.",
+            "Смешайте йогурт с давленым чесноком и солью.",
+            "Растопите и разогрейте сливочное масло, можно добавить острый перец.",
+            "Смешайте пасту с йогуртом или выложите йогурт сверху.",
+            "Полейте горячим маслом и подавайте."
+          ]
+        }
+      },
+      {
+        id: 7,
+        title: {
+          tr: "Balık Izgara",
+          en: "Grilled Fish",
+          az: "Qızardılmış Balıq",
+          ru: "Жареная рыба"
+        },
+        ingredients: ["balik", "limon", "zeytinyagi", "baharat", "sogan"],
+        time: 15,
+        difficulty: "easy",
+        image: "balik_izgara.png",
+        description: {
+          tr: "Taze balık filetosu limonlu sosla ızgarada pişirilmiş hafif bir yemek.",
+          en: "Fresh fish fillet grilled with lemon sauce for a light meal.",
+          az: "Limonlu sousla qrildə bişirilmiş təzə balıq filetosu yüngül yemək.",
+          ru: "Свежий филе рыбы, запеченное на гриле с лимонным соусом для легкого блюда."
+        },
+        instructions: {
+          tr: [
+            "Balık filetosunu tuz ve baharatla marine edin.",
+            "Soğanı ince dilimleyin ve limon suyuyla karıştırın.",
+            "Zeytinyağını fırçayla balığa sürün.",
+            "Izgara tavasında her iki tarafını 5-7 dakika pişirin.",
+            "Limonlu sosu üzerine gezdirip sıcak servis edin."
+          ],
+          en: [
+            "Marinate the fish fillet with salt and spices.",
+            "Slice the onion thinly and mix with lemon juice.",
+            "Brush the fish with olive oil.",
+            "Grill on both sides for 5-7 minutes.",
+            "Drizzle with lemon sauce and serve hot."
+          ],
+          az: [
+            "Balıq filetosunu duz və ədviyyatla marinad edin.",
+            "Soğanı incə dilimləyin və limon şirəsi ilə qarışdırın.",
+            "Zeytun yağını fırça ilə balığa sürün.",
+            "Qrildə hər iki tərəfini 5-7 dəqiqə bişirin.",
+            "Limonlu sousu üzərinə gəzdirib isti servis edin."
+          ],
+          ru: [
+            "Замаринуйте филе рыбы солью и специями.",
+            "Нарежьте лук тонко и смешайте с лимонным соком.",
+            "Смажьте рыбу оливковым маслом.",
+            "Жарьте на гриле с обеих сторон по 5-7 минут.",
+            "Полейте лимонным соусом и подавайте горячим."
+          ]
+        }
+      },
+      {
+        id: 8,
+        title: {
+          tr: "Kuzu Güveç",
+          en: "Lamb Stew",
+          az: "Quzu Quveç",
+          ru: "Тушеная баранина"
+        },
+        ingredients: ["kuzu", "patlican", "domates", "biber", "salca", "zeytinyagi", "baharat"],
+        time: 45,
+        difficulty: "medium",
+        image: "kuzu_guvec.png",
+        description: {
+          tr: "Patlıcan ve domatesle zenginleştirilmiş geleneksel kuzu güveç.",
+          en: "Traditional lamb stew enriched with eggplant and tomatoes.",
+          az: "Badımcan və pomidorla zənginləşdirilmiş ənənəvi quzu quveç.",
+          ru: "Традиционное тушеное мясо баранины с баклажанами и помидорами."
+        },
+        instructions: {
+          tr: [
+            "Kuzu etini küp doğrayın ve zeytinyağında kavurun.",
+            "Patlıcanı ve biberi doğrayıp ekleyin.",
+            "Domates ve salçayı ilave edip suyunu salana kadar pişirin.",
+            "Baharatları katın ve kısık ateşte 30 dakika demlendirin.",
+            "Sıcak ekmekle servis edin."
+          ],
+          en: [
+            "Cube the lamb and sauté in olive oil.",
+            "Add chopped eggplant and peppers.",
+            "Incorporate tomatoes and paste, cook until juices release.",
+            "Add spices and simmer on low for 30 minutes.",
+            "Serve with hot bread."
+          ],
+          az: [
+            "Quzu ətini kub doğrayıb zeytun yağında qovurun.",
+            "Badımcanı və bibəri doğrayıb əlavə edin.",
+            "Pomidor və salçanı qatın, şirəsi çıxana qədər bişirin.",
+            "Ədviyyatları əlavə edib yavaş odda 30 dəqiqə qaynadın.",
+            "İsti çörəklə servis edin."
+          ],
+          ru: [
+            "Нарежьте баранину кубиками и обжарьте на оливковом масле.",
+            "Добавьте нарезанный баклажан и перец.",
+            "Влейте помидоры и пасту, тушите до выделения сока.",
+            "Добавьте специи и томите на медленном огне 30 минут.",
+            "Подавайте с горячим хлебом."
+          ]
+        }
+      },
+      {
+        id: 9,
+        title: {
+          tr: "Ispanak Sote",
+          en: "Sautéed Spinach",
+          az: "Qovrulmuş İspanaq",
+          ru: "Тушеный шпинат"
+        },
+        ingredients: ["ispanak", "sogan", "sarimsak", "tereyagi", "baharat"],
+        time: 10,
+        difficulty: "easy",
+        image: "ispanak_sote.png",
+        description: {
+          tr: "Tereyağında sote edilmiş taze ıspanak, sağlıklı bir garnitür.",
+          en: "Fresh spinach sautéed in butter, a healthy side dish.",
+          az: "Kərə yağında qovrulmuş təzə ispanax, sağlam garnitur.",
+          ru: "Свежий шпинат, тушенный на сливочном масле, здоровый гарнир."
+        },
+        instructions: {
+          tr: [
+            "Ispanağı yıkayıp süzün.",
+            "Soğan ve sarımsağı ince doğrayın.",
+            "Tereyağında soğan ve sarımsağı soteleyin.",
+            "Ispanağı ekleyip baharatla karıştırarak 3-4 dakika pişirin.",
+            "Sıcak olarak servis edin."
+          ],
+          en: [
+            "Wash and drain the spinach.",
+            "Chop onion and garlic finely.",
+            "Sauté onion and garlic in butter.",
+            "Add spinach and spices, cook for 3-4 minutes.",
+            "Serve hot."
+          ],
+          az: [
+            "İspanaxı yuyub süzün.",
+            "Soğan və sarımsağı incə doğrayın.",
+            "Kərə yağında soğan və sarımsağı qovurun.",
+            "İspanaxı əlavə edib ədviyyatla qarışdıraraq 3-4 dəqiqə bişirin.",
+            "İsti şəkildə servis edin."
+          ],
+          ru: [
+            "Промойте и слейте шпинат.",
+            "Мелко нарежьте лук и чеснок.",
+            "Обжарьте лук и чеснок на сливочном масле.",
+            "Добавьте шпинат и специи, готовьте 3-4 минуты.",
+            "Подавайте горячим."
+          ]
+        }
+      },
+      {
+        id: 10,
+        title: {
+          tr: "Bulgur Pilavı",
+          en: "Bulgur Pilaf",
+          az: "Bulgur Plovu",
+          ru: "Плов из булгура"
+        },
+        ingredients: ["bulgur", "domates", "biber", "sogan", "tereyagi", "baharat"],
+        time: 25,
+        difficulty: "easy",
+        image: "bulgur_pilavi.png",
+        description: {
+          tr: "Domatesli ve biberli doyurucu bulgur pilavı.",
+          en: "Tomato and pepper enriched satisfying bulgur pilaf.",
+          az: "Pomidorlu və bibərli doyurucu bulgur plovu.",
+          ru: "Сытный плов из булгура с помидорами и перцем."
+        },
+        instructions: {
+          tr: [
+            "Soğanı ve biberi doğrayın.",
+            "Tereyağında kavurup domates salçası ekleyin.",
+            "Bulguru ilave edip 2 dakika kavurun.",
+            "Suyu ekleyip baharatla kaynatın, kısık ateşte 15 dakika pişirin.",
+            "Demlenmeye bırakıp servis edin."
+          ],
+          en: [
+            "Chop onion and pepper.",
+            "Sauté in butter and add tomato paste.",
+            "Add bulgur and stir for 2 minutes.",
+            "Pour water, season with spices, boil then simmer for 15 minutes.",
+            "Let it rest and serve."
+          ],
+          az: [
+            "Soğanı və bibəri doğrayın.",
+            "Kərə yağında qovurub tomat pastası əlavə edin.",
+            "Bulguru qatın və 2 dəqiqə qovurun.",
+            "Su əlavə edib ədviyyatla birlikdə qaynadın, sonra 15 dəqiqə zəif odda bişirin.",
+            "Demlənməyə buraxıb servis edin."
+          ],
+          ru: [
+            "Нарежьте лук и перец.",
+            "Обжарьте на сливочном масле и добавьте томатную пасту.",
+            "Добавьте булгур и перемешайте 2 минуты.",
+            "Влейте воду, приправьте, доведите до кипения и тушите 15 минут.",
+            "Дайте настояться и подавайте."
+          ]
+        }
+      },
+      {
+        id: 11,
+        title: {
+          tr: "Nohut Yemeği",
+          en: "Chickpea Stew",
+          az: "Nohud Yeməyi",
+          ru: "Тушеный нут"
+        },
+        ingredients: ["nohut", "havuc", "sogan", "sarimsak", "zeytinyagi", "baharat", "limon"],
+        time: 30,
+        difficulty: "medium",
+        image: "nohut_yemegi.png",
+        description: {
+          tr: "Havuçlu ve limonlu protein dolu nohut yemeği.",
+          en: "Protein-rich chickpea stew with carrot and lemon.",
+          az: "Yerkökülü və limonlu, zülal baxımından zəngin nohut yeməyi.",
+          ru: "Богатое белком блюдо из нута с морковью и лимоном."
+        },
+        instructions: {
+          tr: [
+            "Nohutları haşlayın.",
+            "Soğan, havuç ve sarımsağı doğrayıp zeytinyağında soteleyin.",
+            "Haşlanmış nohutu ekleyip baharatla karıştırın.",
+            "Limon suyu sıkıp 10 dakika pişirin.",
+            "Sıcak servis edin."
+          ],
+          en: [
+            "Boil the chickpeas.",
+            "Chop onion, carrot and garlic, sauté in olive oil.",
+            "Add boiled chickpeas and spices.",
+            "Squeeze in lemon juice and cook for 10 minutes.",
+            "Serve hot."
+          ],
+          az: [
+            "Nohudu bişirin.",
+            "Soğan, yerkökü və sarımsağı doğrayıb zeytun yağında qovurun.",
+            "Bişmiş nohudu əlavə edib ədviyyatla qarışdırın.",
+            "Limon şirəsi əlavə edib 10 dəqiqə bişirin.",
+            "İsti servis edin."
+          ],
+          ru: [
+            "Отварите нут.",
+            "Нарежьте лук, морковь и чеснок, обжарьте на оливковом масле.",
+            "Добавьте отваренный нут и специи.",
+            "Выжмите лимонный сок и готовьте 10 минут.",
+            "Подавайте горячим."
+          ]
+        }
+      },
+      {
+        id: 12,
+        title: {
+          tr: "Dana Stroganoff",
+          en: "Beef Stroganoff",
+          az: "Mal Əti Stroganoff",
+          ru: "Говядина строганов"
+        },
+        ingredients: ["dana", "mantar", "kasar", "yogurt", "yumurta", "baharat"],
+        time: 35,
+        difficulty: "hard",
+        image: "dana_stroganoff.png",
+        description: {
+          tr: "Mantarlı ve yoğurtlu kremsi dana stroganoff.",
+          en: "Creamy beef stroganoff with mushrooms and yogurt.",
+          az: "Göbələkli və yoğurtlu kremsi mal əti stroganoff.",
+          ru: "Кремовый строганов из говядины с грибами и йогуртом."
+        },
+        instructions: {
+          tr: [
+            "Dana etini şerit doğrayın.",
+            "Mantarları dilimleyin ve yumurtayı çırpın.",
+            "Etleri kavurup mantar ekleyin.",
+            "Yoğurt ve kaşar peynirini karıştırıp sos yapın, baharat ekleyin.",
+            "Sosu etlere döküp 10 dakika pişirin."
+          ],
+          en: [
+            "Slice the beef into strips.",
+            "Slice the mushrooms and whisk the egg.",
+            "Sauté the beef and add mushrooms.",
+            "Mix yogurt and cheddar to make a sauce, add spices.",
+            "Pour the sauce over the meat and cook for 10 minutes."
+          ],
+          az: [
+            "Mal ətini zolaq şəklində doğrayın.",
+            "Göbələkləri dilimləyin və yumurtanı çırpın.",
+            "Əti qovurub göbələk əlavə edin.",
+            "Yoğurt və kaşar pendirini qarışdırıb sous hazırlayın, ədviyyat əlavə edin.",
+            "Sousu ətin üzərinə töküb 10 dəqiqə bişirin."
+          ],
+          ru: [
+            "Нарежьте говядину полосками.",
+            "Нарежьте грибы и взбейте яйцо.",
+            "Обжарьте мясо и добавьте грибы.",
+            "Смешайте йогурт и сыр для соуса, добавьте специи.",
+            "Полейте мясо соусом и готовьте 10 минут."
+          ]
+        }
+      },
+
+      /* ===== YENİ / DÜZELTİLMİŞ TARİFLER ===== */
+
+      {
+        id: 13,
+        title: {
+          tr: "Sade Pilav",
+          en: "Plain Rice Pilaf",
+          az: "Sadə Düyü Plovu",
+          ru: "Простой рисовый плов"
+        },
+        ingredients: ["pirinc", "tereyagi", "baharat"],
+        time: 20,
+        difficulty: "easy",
+        image: "sade_pilav.png",
+        description: {
+          tr: "Pirinç, tereyağı ve sadece tuz/baharatla yapılan klasik sade pilav.",
+          en: "Classic plain rice pilaf made with rice, butter and simple seasoning.",
+          az: "Düyü, kərə yağı və sadə ədviyyatlarla hazırlanan klassik sadə plov.",
+          ru: "Классический простой плов из риса с маслом и солью/специями."
+        },
+        instructions: {
+          tr: [
+            "Pirinci nişastası çıkana kadar birkaç su yıkayın.",
+            "Tencerede tereyağını eritin ve pirinci 2-3 dakika kavurun.",
+            "Üzerini bir parmak geçecek kadar sıcak su ekleyin, tuz ve baharat ekleyin.",
+            "Kaynadıktan sonra altını kısın, suyunu çekene kadar pişirin.",
+            "Ocaktan alıp kapağı kapalı şekilde 10 dakika demlendirip servis edin."
+          ],
+          en: [
+            "Rinse the rice several times until the water runs clear.",
+            "Melt butter in a pot and sauté the rice for 2–3 minutes.",
+            "Add hot water to cover the rice by about a finger, season with salt and spices.",
+            "Bring to a boil, then reduce heat and cook until water is absorbed.",
+            "Remove from heat, cover and let rest for 10 minutes before serving."
+          ],
+          az: [
+            "Düyünü nişastası çıxana qədər bir neçə dəfə yuyun.",
+            "Qazanda kərə yağını əridin və düyünü 2–3 dəqiqə qovurun.",
+            "Üstünü bir barmaq keçəcək qədər isti su əlavə edib duz və ədviyyat qatın.",
+            "Qaynayana qədər bişirin, sonra odda azaldıb suyu çəkilənə qədər bişirin.",
+            "Ocaqdan götürüb qapaqlı halda 10 dəqiqə dəmləndirin və servis edin."
+          ],
+          ru: [
+            "Промойте рис несколько раз, пока вода не станет прозрачной.",
+            "Растопите сливочное масло в кастрюле и обжарьте рис 2–3 минуты.",
+            "Добавьте горячую воду так, чтобы она покрыла рис примерно на палец, посолите и приправьте.",
+            "Доведите до кипения, уменьшите огонь и варите до впитывания воды.",
+            "Снимите с огня, накройте крышкой и дайте настояться 10 минут, затем подавайте."
+          ]
+        }
+      },
+      {
+        id: 14,
+        title: {
+          tr: "Menemen",
+          en: "Menemen (Turkish Egg & Tomato)",
+          az: "Menemen",
+          ru: "Менемен"
+        },
+        ingredients: ["yumurta", "domates", "biber", "sogan", "zeytinyagi", "baharat"],
+        time: 15,
+        difficulty: "easy",
+        image: "menemen.png",
+        description: {
+          tr: "Yumurta, domates ve biberle yapılan klasik menemen.",
+          en: "A classic Turkish scrambled egg dish with tomatoes and peppers.",
+          az: "Yumurta, pomidor və bibərlə hazırlanan klassik menemen.",
+          ru: "Классическое турецкое блюдо из яиц с помидорами и перцем."
+        },
+        instructions: {
+          tr: [
+            "Soğanı ve biberi küçük doğrayın.",
+            "Zeytinyağında önce soğanı, sonra biberleri soteleyin.",
+            "Domatesleri ekleyip yumuşayana kadar pişirin.",
+            "Yumurtaları kırıp karıştırın veya bütün bırakın.",
+            "Tuz ve baharat ekleyip kısa süre pişirip servis edin."
+          ],
+          en: [
+            "Finely chop the onion and peppers.",
+            "Sauté the onion in olive oil, then add the peppers.",
+            "Add chopped tomatoes and cook until softened.",
+            "Crack in the eggs and stir, or leave them more whole if you prefer.",
+            "Season with salt and spices, cook briefly and serve."
+          ],
+          az: [
+            "Soğan və bibəri xırda doğrayın.",
+            "Zeytun yağında əvvəl soğanı, sonra bibəri qovurun.",
+            "Doğranmış pomidoru əlavə edib yumşalana qədər bişirin.",
+            "Yumurtaları qırıb qarışdırın və ya bütöv vəziyyətdə saxlayın.",
+            "Duz və ədviyyat əlavə edib qısa müddət bişirin və servis edin."
+          ],
+          ru: [
+            "Мелко нарежьте лук и перец.",
+            "Обжарьте лук в оливковом масле, затем добавьте перец.",
+            "Добавьте нарезанные помидоры и тушите до мягкости.",
+            "Разбейте яйца и перемешайте или оставьте более цельными.",
+            "Посолите, приправьте и немного потомите, затем подавайте."
+          ]
+        }
+      },
+      {
+        id: 15,
+        title: {
+          tr: "Patates Püresi",
+          en: "Mashed Potatoes",
+          az: "Kartof Püresi",
+          ru: "Картофельное пюре"
+        },
+        ingredients: ["patates", "tereyagi", "yogurt", "baharat"],
+        time: 25,
+        difficulty: "easy",
+        image: "patates_puresi.png",
+        description: {
+          tr: "Patates, tereyağı ve yoğurtla hazırlanan basit patates püresi.",
+          en: "Simple mashed potatoes made with butter and yogurt.",
+          az: "Kartof, kərə yağı və yoğurtla hazırlanan sadə kartof püresi.",
+          ru: "Простое картофельное пюре со сливочным маслом и йогуртом."
+        },
+        instructions: {
+          tr: [
+            "Patatesleri soyup küp doğrayın ve yumuşayana kadar haşlayın.",
+            "Suyunu süzüp patatesleri ezin.",
+            "Tereyağını ekleyip karıştırın.",
+            "Biraz yoğurt ekleyerek kıvamını açın.",
+            "Tuz ve baharat ekleyip pürüzsüz olana kadar karıştırın."
+          ],
+          en: [
+            "Peel and dice the potatoes, then boil until soft.",
+            "Drain and mash the potatoes.",
+            "Add butter and mix.",
+            "Add some yogurt to loosen the texture.",
+            "Season with salt and spices and stir until smooth."
+          ],
+          az: [
+            "Kartofu soyub kub şəklində doğrayın və yumşalana qədər bişirin.",
+            "Suyunu süzüb kartofu əzin.",
+            "Kərə yağını əlavə edib qarışdırın.",
+            "Qıvamı üçün bir az yoğurt əlavə edin.",
+            "Duz və ədviyyat əlavə edib tam hamar olana qədər qarışdırın."
+          ],
+          ru: [
+            "Очистите и нарежьте картофель кубиками, отварите до мягкости.",
+            "Слейте воду и разомните картофель.",
+            "Добавьте сливочное масло и перемешайте.",
+            "Добавьте немного йогурта для нужной консистенции.",
+            "Посолите, приправьте и взбейте до однородности."
+          ]
+        }
+      },
+      {
+        id: 16,
+        title: {
+          tr: "Sade Omlet",
+          en: "Plain Omelette",
+          az: "Sadə Omlet",
+          ru: "Простой омлет"
+        },
+        ingredients: ["yumurta", "peynir", "tereyagi", "baharat"],
+        time: 10,
+        difficulty: "easy",
+        image: "sade_omlet.png",
+        description: {
+          tr: "Yumurta ve peynirle hazırlanan sade, kahvaltılık omlet.",
+          en: "A simple breakfast omelette with eggs and cheese.",
+          az: "Yumurta və pendirlə hazırlanan sadə səhər omleti.",
+          ru: "Простой завтрак-омлет из яиц и сыра."
+        },
+        instructions: {
+          tr: [
+            "Yumurtaları bir kasede çırpın, tuz ve baharat ekleyin.",
+            "Tavada tereyağını eritin.",
+            "Yumurtayı tavaya dökün, hafifçe karıştırın.",
+            "Peyniri üzerine serpiştirip katlayın.",
+            "Altı kızarınca ocaktan alıp servis edin."
+          ],
+          en: [
+            "Beat the eggs in a bowl and season with salt and spices.",
+            "Melt butter in a pan.",
+            "Pour in the eggs and gently stir.",
+            "Sprinkle cheese on top and fold the omelette.",
+            "Once the bottom is golden, remove from heat and serve."
+          ],
+          az: [
+            "Yumurtaları qabda çalıb duz və ədviyyat əlavə edin.",
+            "Tavada kərə yağını əridin.",
+            "Yumurtanı tavaya töküb yüngülcə qarışdırın.",
+            "Üzərinə pendir səpib omleti qatlayın.",
+            "Altı qızardıqda ocaqdan götürüb servis edin."
+          ],
+          ru: [
+            "Взбейте яйца в миске, посолите и приправьте.",
+            "Растопите сливочное масло на сковороде.",
+            "Вылейте яйца и слегка перемешайте.",
+            "Посыпьте сыром и сложите омлет пополам.",
+            "Когда низ подрумянится, снимите с огня и подавайте."
+          ]
+        }
+      },
+      {
+        id: 17,
+        title: {
+          tr: "Sade Bulgur Pilavı",
+          en: "Simple Bulgur Pilaf",
+          az: "Sadə Bulgur Plovu",
+          ru: "Простой плов из булгура"
+        },
+        ingredients: ["bulgur", "tereyagi", "salca", "baharat"],
+        time: 20,
+        difficulty: "easy",
+        image: "sade_bulgur_pilavi.png",
+        description: {
+          tr: "Sadece bulgur, tereyağı ve salçayla yapılan sade bir bulgur pilavı.",
+          en: "A simple bulgur pilaf made only with butter and tomato paste.",
+          az: "Yalnız bulgur, kərə yağı və tomat pastası ilə hazırlanan sadə bulgur plovu.",
+          ru: "Простой плов из булгура со сливочным маслом и томатной пастой."
+        },
+        instructions: {
+          tr: [
+            "Tencerede tereyağını eritin.",
+            "Salçayı ekleyip kokusu çıkana kadar kavurun.",
+            "Bulguru ekleyip 1-2 dakika daha kavurun.",
+            "Üzerini geçecek kadar su ve baharat ekleyin.",
+            "Kısık ateşte suyunu çekene kadar pişirin, demlendirip servis edin."
+          ],
+          en: [
+            "Melt butter in a pot.",
+            "Add tomato paste and sauté until fragrant.",
+            "Add bulgur and sauté for 1–2 minutes.",
+            "Pour in enough water to cover and season with spices.",
+            "Cook on low heat until the water is absorbed, let rest and serve."
+          ],
+          az: [
+            "Qazanda kərə yağını əridin.",
+            "Tomat pastasını əlavə edib qoxu çıxana qədər qovurun.",
+            "Bulguru əlavə edib 1–2 dəqiqə daha qovurun.",
+            "Üstünü örtəcək qədər su və ədviyyat əlavə edin.",
+            "Zəif odda suyu çəkilənə qədər bişirin, dəmləndirib servis edin."
+          ],
+          ru: [
+            "Растопите сливочное масло в кастрюле.",
+            "Добавьте томатную пасту и немного обжарьте до аромата.",
+            "Добавьте булгур и обжаривайте ещё 1–2 минуты.",
+            "Влейте воду, чтобы она покрыла булгур, приправьте.",
+            "Готовьте на слабом огне до впитывания воды, дайте настояться и подавайте."
+          ]
+        }
+      },
+      {
+        id: 18,
+        title: {
+          tr: "Kuru Fasulye Yemeği",
+          en: "White Bean Stew",
+          az: "Kuru Lobya Yeməyi",
+          ru: "Тушёная фасоль"
+        },
+        ingredients: ["kuru", "sogan", "salca", "dana", "baharat"],
+        time: 60,
+        difficulty: "medium",
+        image: "kuru_fasulye.png",
+        description: {
+          tr: "Soğan ve salçayla hazırlanan klasik kuru fasulye, isteğe bağlı etli.",
+          en: "A classic white bean stew with onion and tomato paste, optionally with beef.",
+          az: "Soğan və tomat pastası ilə hazırlanan klassik quru lobya, istəyə görə ətlə.",
+          ru: "Классическое тушёное блюдо из фасоли с луком и томатной пастой, при желании с говядиной."
+        },
+        instructions: {
+          tr: [
+            "Kuru fasulyeyi önceden ıslatıp haşlayın.",
+            "Soğanı doğrayıp tencerede kavurun.",
+            "Dana etini ekleyip suyunu salıp çekene kadar kavurun (istersen).",
+            "Salça ekleyip karıştırın.",
+            "Haşlanmış fasulyeyi ve sıcak suyu ekleyin.",
+            "Baharatları ekleyip fasulyeler iyice yumuşayana kadar pişirin."
+          ],
+          en: [
+            "Soak the dried beans beforehand and boil until almost soft.",
+            "Chop and sauté the onion in a pot.",
+            "Add diced beef and cook until it releases and reabsorbs its juices (optional).",
+            "Stir in tomato paste.",
+            "Add the boiled beans and hot water.",
+            "Season and cook until the beans are completely tender."
+          ],
+          az: [
+            "Quru lobyaları əvvəlcədən isladıb yumşalana qədər bişirin.",
+            "Soğanı doğrayıb qazanda qovurun.",
+            "Ət istifadə edəcəksinizsə, doğranmış mal ətini əlavə edib suyunu buraxıb çəkənə qədər qovurun.",
+            "Tomat pastasını əlavə edib qarışdırın.",
+            "Bişmiş lobyanı və isti suyu əlavə edin.",
+            "Ədviyyatları əlavə edib lobya tam yumşalana qədər bişirin."
+          ],
+          ru: [
+            "Замочите сухую фасоль заранее и отварите почти до мягкости.",
+            "Нарежьте и обжарьте лук в кастрюле.",
+            "При желании добавьте кусочки говядины и обжарьте до выпаривания сока.",
+            "Добавьте томатную пасту и перемешайте.",
+            "Положите отваренную фасоль и налейте горячую воду.",
+            "Приправьте и тушите до полной мягкости фасоли."
+          ]
+        }
+      },
+      {
+        id: 19,
+        title: {
+          tr: "Fırında Sebzeli Balık",
+          en: "Baked Fish with Vegetables",
+          az: "Tərəvəzli Fırın Balığı",
+          ru: "Запечённая рыба с овощами"
+        },
+        ingredients: ["balik", "patates", "limon", "zeytinyagi", "sogan", "baharat"],
+        time: 35,
+        difficulty: "medium",
+        image: "firinda_sebzeli_balik.png",
+        description: {
+          tr: "Patates ve soğanla birlikte fırında pişen sebzeli balık.",
+          en: "Baked fish with potatoes and onions, cooked together in the oven.",
+          az: "Kartof və soğanla birlikdə sobada bişən tərəvəzli balıq.",
+          ru: "Рыба, запечённая в духовке с картофелем и луком."
+        },
+        instructions: {
+          tr: [
+            "Patatesleri ve soğanı halka halka doğrayın.",
+            "Fırın kabının tabanına patates ve soğanları dizin.",
+            "Üzerine balığı yerleştirin.",
+            "Limon dilimleri koyun, zeytinyağı gezdirin.",
+            "Tuz ve baharat ekleyip 180°C fırında balık pişene kadar pişirin."
+          ],
+          en: [
+            "Slice potatoes and onions into rounds.",
+            "Layer them on the bottom of a baking dish.",
+            "Place the fish on top.",
+            "Add lemon slices and drizzle with olive oil.",
+            "Season and bake at 180°C until the fish is fully cooked."
+          ],
+          az: [
+            "Kartof və soğanı halqa-halqa doğrayın.",
+            "Fırın qabının dibinə kartof və soğanı düzün.",
+            "Üstünə balığı yerləşdirin.",
+            "Limon dilimləri qoyub zeytun yağı gəzdirin.",
+            "Duz və ədviyyat əlavə edib 180°C-də balıq bişənə qədər sobada saxlayın."
+          ],
+          ru: [
+            "Нарежьте картофель и лук кружочками.",
+            "Выложите их на дно формы для запекания.",
+            "Сверху положите рыбу.",
+            "Добавьте ломтики лимона и полейте оливковым маслом.",
+            "Посолите, приправьте и запекайте при 180°C до готовности рыбы."
+          ]
+        }
+      },
+      {
+        id: 20,
+        title: {
+          tr: "Kremalı Mantar Çorbası",
+          en: "Creamy Mushroom Soup",
+          az: "Kremalı Göbələk Şorbası",
+          ru: "Крем-суп из грибов"
+        },
+        ingredients: ["mantar", "sogan", "tereyagi", "yogurt", "baharat"],
+        time: 30,
+        difficulty: "medium",
+        image: "kremali_mantar_corbasi.png",
+        description: {
+          tr: "Mantar, soğan ve yoğurtla hazırlanan kremamsı mantar çorbası.",
+          en: "A creamy mushroom soup made with onion and yogurt.",
+          az: "Göbələk, soğan və yoğurtla hazırlanan kremalı göbələk şorbası.",
+          ru: "Кремовый грибной суп с луком и йогуртом."
+        },
+        instructions: {
+          tr: [
+            "Mantarları ve soğanı doğrayın.",
+            "Tereyağında soğanı, ardından mantarları soteleyin.",
+            "Üzerine su ekleyip mantarlar yumuşayana kadar pişirin.",
+            "Bir kasede yoğurdu az su ile açıp çorbaya yavaşça ekleyin.",
+            "Baharat ekleyip 5 dakika daha kaynatın."
+          ],
+          en: [
+            "Chop the mushrooms and onion.",
+            "Sauté the onion in butter, then add mushrooms.",
+            "Add water and cook until the mushrooms are soft.",
+            "Whisk yogurt with a bit of water and slowly stir into the soup.",
+            "Season and simmer for 5 more minutes."
+          ],
+          az: [
+            "Göbələk və soğanı doğrayın.",
+            "Kərə yağında əvvəl soğanı, sonra göbələyi qovurun.",
+            "Üzərinə su əlavə edib göbələklər yumşalana qədər bişirin.",
+            "Bir qabda yoğurdu az su ilə açıb şorbaya yavaş-yavaş qarışdırın.",
+            "Ədviyyat əlavə edib 5 dəqiqə daha qaynadın."
+          ],
+          ru: [
+            "Нарежьте грибы и лук.",
+            "Обжарьте лук на сливочном масле, затем добавьте грибы.",
+            "Влейте воду и варите до мягкости грибов.",
+            "Смешайте йогурт с небольшим количеством воды и постепенно введите в суп.",
+            "Приправьте и поварите ещё 5 минут."
+          ]
+        }
+      },
+      {
+        id: 21,
+        title: {
+          tr: "Fırında Bütün Tavuk",
+          en: "Whole Roast Chicken",
+          az: "Sobada Bütün Toyuq",
+          ru: "Цыплёнок целиком в духовке"
+        },
+        ingredients: ["tavuk", "yogurt", "sarimsak", "baharat", "zeytinyagi"],
+        time: 70,
+        difficulty: "medium",
+        image: "firinda_butun_tavuk.png",
+        description: {
+          tr: "Yoğurt ve baharatla marine edilmiş, fırında bütün tavuk.",
+          en: "Whole chicken marinated with yogurt and spices, roasted in the oven.",
+          az: "Yoğurt və ədviyyatlarla marinad edilmiş, sobada bişən bütün toyuq.",
+          ru: "Цыплёнок, замаринованный в йогурте со специями и запечённый целиком."
+        },
+        instructions: {
+          tr: [
+            "Yoğurt, ezilmiş sarımsak, zeytinyağı ve baharatları karıştırın.",
+            "Tavuğun her yerine bu sosu güzelce sürün.",
+            "Mümkünse 30 dakika buzdolabında dinlendirin.",
+            "200°C fırında dışı kızarana, içi tam pişene kadar pişirin.",
+            "Dilimleyip sıcak servis edin."
+          ],
+          en: [
+            "Mix yogurt with crushed garlic, olive oil and spices.",
+            "Rub the mixture all over the chicken.",
+            "Let it rest in the fridge for about 30 minutes if possible.",
+            "Roast at 200°C until the skin is golden and the inside is fully cooked.",
+            "Slice and serve hot."
+          ],
+          az: [
+            "Yoğurtu, əzilmiş sarımsağı, zeytun yağını və ədviyyatları qarışdırın.",
+            "Bu sousu toyuğun hər tərəfinə yaxşıca çəkin.",
+            "Mümkünsə 30 dəqiqə soyuducuda saxlayın.",
+            "200°C-də dərisi qızarana və içi tam bişənə qədər sobada saxlayın.",
+            "Doğrayıb isti şəkildə servis edin."
+          ],
+          ru: [
+            "Смешайте йогурт с измельчённым чесноком, оливковым маслом и специями.",
+            "Натрите курицу этим маринадом со всех сторон.",
+            "При необходимости выдержите 30 минут в холодильнике.",
+            "Запекайте при 200°C до румяной корочки и полной готовности.",
+            "Нарежьте и подавайте горячей."
+          ]
+        }
+      },
+      {
+        id: 22,
+        title: {
+          tr: "Havuç Tarator",
+          en: "Carrot Tarator",
+          az: "Havuç Tarator",
+          ru: "Морковный тартар (таротор)"
+        },
+        ingredients: ["havuc", "yogurt", "sarimsak", "zeytinyagi", "baharat"],
+        time: 15,
+        difficulty: "medium",
+        image: "havuc_tarator.png",
+        description: {
+          tr: "Sote havuçların sarımsaklı yoğurtla karıştırılmasıyla yapılan meze.",
+          en: "A cold meze made with sautéed carrots mixed into garlicky yogurt.",
+          az: "Sarımsaqlı yoğurta qarışdırılan qovrulmuş yerkökü ilə hazırlanan soyuq məzə.",
+          ru: "Холодная закуска из обжаренной моркови в чесночном йогурте."
+        },
+        instructions: {
+          tr: [
+            "Havuçları rendeleyin.",
+            "Tavada zeytinyağında havuçları yumuşayana kadar soteleyin.",
+            "Soğuması için kenara alın.",
+            "Yoğurdu ezilmiş sarımsak ve tuzla karıştırın.",
+            "Sote havuçlarla yoğurdu birleştirip karıştırın, soğuk servis edin."
+          ],
+          en: [
+            "Grate the carrots.",
+            "Sauté them in olive oil until softened.",
+            "Set aside to cool.",
+            "Mix yogurt with crushed garlic and salt.",
+            "Combine the cooled carrots with the yogurt and serve chilled."
+          ],
+          az: [
+            "Yerkökünü sürtgəcdən keçirin.",
+            "Zeytun yağında yumuşalana qədər qovurun.",
+            "Soyuması üçün kənara qoyun.",
+            "Yoğurdu əzilmiş sarımsaq və duzla qarışdırın.",
+            "Soyumuş yerkökünü yoğurtla qarışdırıb soyuq servis edin."
+          ],
+          ru: [
+            "Натрите морковь на тёрке.",
+            "Обжарьте её в оливковом масле до мягкости.",
+            "Остудите.",
+            "Смешайте йогурт с измельчённым чесноком и солью.",
+            "Соедините морковь с йогуртом и подавайте охлаждённой."
+          ]
+        }
+      },
+      {
+        id: 23,
+        title: {
+          tr: "Karnıyarık",
+          en: "Stuffed Eggplants (Karnıyarık)",
+          az: "Karnıyarık (Ətli Badımcan)",
+          ru: "Фаршированные баклажаны (Карныярлык)"
+        },
+        ingredients: ["patlican", "kiyma", "sogan", "domates", "salca", "biber", "zeytinyagi", "baharat"],
+        time: 60,
+        difficulty: "hard",
+        image: "karniyarik.png",
+        description: {
+          tr: "Kızartılmış ya da fırınlanmış patlıcanın kıymalı harçla doldurulmasıyla yapılan klasik yemek.",
+          en: "A classic Turkish dish of fried or baked eggplants filled with minced meat.",
+          az: "Qızardılmış və ya sobada bişmiş badımcanın qiyməli içlə doldurulduğu klassik yemək.",
+          ru: "Классическое турецкое блюдо: баклажаны, фаршированные мясным фаршем."
+        },
+        instructions: {
+          tr: [
+            "Patlıcanları çizgili soyup kızartın veya fırında hafif pişirin.",
+            "Soğan ve biberi doğrayıp zeytinyağında kavurun.",
+            "Kıymayı ekleyip kavurmaya devam edin.",
+            "Domates ve salçayı ekleyip baharatla birlikte harcı pişirin.",
+            "Patlıcanları ortadan yarıp içlerine kıymalı harcı doldurun.",
+            "Tepsiye dizip biraz su ekleyerek fırında pişirin."
+          ],
+          en: [
+            "Peel the eggplants in stripes and fry or pre-bake them until slightly softened.",
+            "Chop onion and peppers, sauté in olive oil.",
+            "Add minced meat and cook through.",
+            "Stir in tomatoes and tomato paste, season and cook the filling.",
+            "Split the eggplants lengthwise and stuff with the meat mixture.",
+            "Place in a tray, add a bit of water and bake until fully cooked."
+          ],
+          az: [
+            "Badımcanı zolaqlı soyub qızardın və ya sobada bir az bişirin.",
+            "Soğan və bibəri doğrayıb zeytun yağında qovurun.",
+            "Qiyməni əlavə edib yaxşıca qovurun.",
+            "Pomidor və tomat pastasını qatıb ədviyyatla birlikdə içliyi bişirin.",
+            "Badımcanları uzununa yarıb içlərini qiyməli içlə doldurun.",
+            "Siniyə düzün, bir az su əlavə edib sobada bişirin."
+          ],
+          ru: [
+            "Очистите баклажаны полосками и обжарьте или слегка запеките.",
+            "Нарежьте лук и перец, обжарьте в оливковом масле.",
+            "Добавьте фарш и обжарьте до готовности.",
+            "Добавьте помидоры и томатную пасту, приправьте и тушите начинку.",
+            "Разрежьте баклажаны вдоль и нафаршируйте мясной смесью.",
+            "Выложите в форму, добавьте немного воды и запекайте до готовности."
+          ]
+        }
+      },
+      {
+        id: 24,
+        title: {
+          tr: "Makarna Fırın (Sütlü)",
+          en: "Baked Pasta with Yogurt & Cheese",
+          az: "Yoğurtlu Fırın Makaron",
+          ru: "Запечённые макароны с йогуртом и сыром"
+        },
+        ingredients: ["makarna", "kasar", "yogurt", "baharat"],
+        time: 35,
+        difficulty: "hard",
+        image: "makarna_firin.png",
+        description: {
+          tr: "Haşlanmış makarnanın yoğurt ve kaşarla fırında pişirilmesi.",
+          en: "Boiled pasta baked in the oven with yogurt and cheese on top.",
+          az: "Haşlanmış makaronun yoğurt və kaşarla birlikdə sobada bişirilməsi.",
+          ru: "Отваренные макароны, запечённые в духовке с йогуртом и сыром."
+        },
+        instructions: {
+          tr: [
+            "Makarnayı haşlayıp süzün.",
+            "Bir kasede yoğurt, az su ve baharatı karıştırın.",
+            "Fırın kabına makarnayı yaydıktan sonra yoğurt karışımını üzerine dökün.",
+            "Üstüne rendelenmiş kaşar peyniri serpin.",
+            "Önceden ısıtılmış 180°C fırında üzeri kızarana kadar pişirin."
+          ],
+          en: [
+            "Boil the pasta and drain.",
+            "Mix yogurt with a little water and spices.",
+            "Spread the pasta in a baking dish and pour the yogurt mixture over it.",
+            "Sprinkle grated cheese on top.",
+            "Bake at 180°C until the top is golden."
+          ],
+          az: [
+            "Makaronu bişirib süzün.",
+            "Bir qabda yoğurdu az su və ədviyyatla qarışdırın.",
+            "Makaronu fırın qabına yayın və üzərinə yoğurt qarışığını tökün.",
+            "Üstünə sürtgəcdən keçirilmiş kaşar pendiri səpin.",
+            "Əvvəlcədən qızdırılmış 180°C sobada üstü qızarana qədər bişirin."
+          ],
+          ru: [
+            "Отварите макароны и откиньте на дуршлаг.",
+            "Смешайте йогурт с небольшим количеством воды и специями.",
+            "Выложите макароны в форму и полейте йогуртовой смесью.",
+            "Посыпьте тёртым сыром.",
+            "Запекайте при 180°C до золотистой корочки."
+          ]
+        }
+      },
+      {
+        id: 25,
+        title: {
+          tr: "İç Pilav (Etli)",
+          en: "Rice Pilaf with Meat",
+          az: "Ətli İç Plov",
+          ru: "Рисовый плов с мясом"
+        },
+        ingredients: ["pirinc", "sogan", "dana", "tereyagi", "baharat"],
+        time: 40,
+        difficulty: "hard",
+        image: "ic_pilav_etli.png",
+        description: {
+          tr: "Soğan ve küçük et parçalarıyla zenginleştirilmiş iç pilav.",
+          en: "A rich rice pilaf cooked with onions and small pieces of beef.",
+          az: "Soğan və xırda ət parçaları ilə bişirilən zəngin iç plov.",
+          ru: "Рисовый плов, приготовленный с луком и мелкими кусочками говядины."
+        },
+        instructions: {
+          tr: [
+            "Pirinci yıkayıp süzün.",
+            "Dana etini küçük parçalar halinde doğrayın.",
+            "Tencerede tereyağında önce soğanı, sonra eti kavurun.",
+            "Pirinci ekleyip birkaç dakika kavurun.",
+            "Sıcak su ve baharatları ekleyip kısık ateşte suyunu çekene kadar pişirin.",
+            "Demlendirip etli pilavı servis edin."
+          ],
+          en: [
+            "Rinse and drain the rice.",
+            "Cut the beef into small cubes.",
+            "Sauté onion in butter, then add the beef and cook.",
+            "Stir in the rice and sauté for a few minutes.",
+            "Add hot water and spices, cook on low heat until the water is absorbed.",
+            "Let it rest, then serve the pilaf with meat."
+          ],
+          az: [
+            "Düyünü yuyub süzün.",
+            "Mal ətini xırda kub şəklində doğrayın.",
+            "Qazanda kərə yağında əvvəl soğanı, sonra ətləri qovurun.",
+            "Düyünü əlavə edib bir neçə dəqiqə qovurun.",
+            "İsti su və ədviyyat əlavə edib zəif odda suyu çəkilənə qədər bişirin.",
+            "Dəmlənməyə qoyub ətli plovu servis edin."
+          ],
+          ru: [
+            "Промойте и обсушите рис.",
+            "Нарежьте говядину мелкими кубиками.",
+            "Обжарьте лук в сливочном масле, затем добавьте мясо и обжарьте.",
+            "Добавьте рис и обжаривайте ещё несколько минут.",
+            "Влейте горячую воду, приправьте и варите на слабом огне до впитывания воды.",
+            "Дайте настояться и подавайте плов с мясом."
+          ]
+        }
+      },
+      {
+        id: 26,
+        title: {
+          tr: "Patlıcan Musakka",
+          en: "Eggplant Moussaka",
+          az: "Badımcan Musakka",
+          ru: "Мусакка с баклажанами"
+        },
+        ingredients: ["patlican", "kiyma", "patates", "sogan", "domates", "salca", "biber", "zeytinyagi", "baharat"],
+        time: 55,
+        difficulty: "hard",
+        image: "patlican_musakka.png",
+        description: {
+          tr: "Patates ve patlıcan katmanları arasında kıymalı harçla hazırlanan musakka.",
+          en: "Layered dish of potatoes, eggplants and minced meat filling.",
+          az: "Kartof və badımcan qatları arasında qiyməli içlə hazırlanan musakka.",
+          ru: "Слоёное блюдо из картофеля, баклажанов и мясного фарша."
+        },
+        instructions: {
+          tr: [
+            "Patlıcan ve patatesleri dilimleyip kızartın veya fırınlayın.",
+            "Soğan ve biberi kavurup kıymayı ekleyin.",
+            "Domates ve salçayı ekleyip baharatla birlikte harcı pişirin.",
+            "Tepsiye patates, patlıcan ve kıymalı harcı katmanlar halinde dizin.",
+            "Üzerine salçalı su gezdirip fırında pişirin."
+          ],
+          en: [
+            "Slice the eggplants and potatoes, fry or bake them lightly.",
+            "Sauté onion and peppers, then add minced meat.",
+            "Add tomatoes and tomato paste, season and cook the filling.",
+            "Layer potatoes, eggplants and meat filling in a baking dish.",
+            "Pour some water mixed with tomato paste on top and bake."
+          ],
+          az: [
+            "Badımcan və kartofu dilimləyib qızardın və ya sobada bir az bişirin.",
+            "Soğan və bibəri qovurub qiyməni əlavə edin.",
+            "Pomidor və tomat pastasını qatıb ədviyyatla birlikdə içliyi bişirin.",
+            "Siniyə kartof, badımcan və qiyməli içi qat-qat düzün.",
+            "Üzərinə tomatlı su gəzdirib sobada bişirin."
+          ],
+          ru: [
+            "Нарежьте баклажаны и картофель ломтиками, обжарьте или слегка запеките.",
+            "Обжарьте лук и перец, добавьте фарш.",
+            "Добавьте помидоры и томатную пасту, приправьте и потушите начинку.",
+            "Выложите слоями картофель, баклажаны и мясную начинку в форму.",
+            "Полейте сверху водой с томатной пастой и запекайте."
+          ]
+        }
+      },
+      {
+        id: 27,
+        title: {
+          tr: "Dana Haşlama",
+          en: "Boiled Beef Stew",
+          az: "Dana Haşlama",
+          ru: "Отварная говядина с овощами"
+        },
+        ingredients: ["dana", "patates", "havuc", "sogan", "baharat"],
+        time: 70,
+        difficulty: "hard",
+        image: "dana_haslama.png",
+        description: {
+          tr: "Dana eti, havuç, patates ve soğanla yapılan haşlama yemek.",
+          en: "A light beef stew boiled with potatoes, carrots and onions.",
+          az: "Dana əti, yerkökü, kartof və soğanla hazırlanan haşlama yeməyi.",
+          ru: "Лёгкое тушёное/отварное блюдо из говядины с картофелем, морковью и луком."
+        },
+        instructions: {
+          tr: [
+            "Dana etini büyük parçalar halinde doğrayın.",
+            "Tencereye etleri alın, üzerini geçecek kadar su ekleyin.",
+            "Kaynayınca köpüğü alıp doğranmış soğan, havuç ve patates ekleyin.",
+            "Baharatları ekleyip et yumuşayana kadar kısık ateşte pişirin.",
+            "Suyu ile birlikte sıcak servis edin."
+          ],
+          en: [
+            "Cut the beef into large chunks.",
+            "Place in a pot, cover with water and bring to a boil.",
+            "Skim off the foam, then add chopped onion, carrot and potatoes.",
+            "Season and simmer on low heat until the meat is tender.",
+            "Serve hot with some of the broth."
+          ],
+          az: [
+            "Dana ətini böyük parçalar şəklində doğrayın.",
+            "Qazana ətləri qoyub üzərinə çıxacaq qədər su əlavə edin və qaynadın.",
+            "Üzə çıxan köpüyü toplayıb doğranmış soğan, yerkökü və kartof əlavə edin.",
+            "Ədviyyatları qatıb ət yumşalana qədər zəif odda bişirin.",
+            "Bulyonla birlikdə isti servis edin."
+          ],
+          ru: [
+            "Нарежьте говядину крупными кусками.",
+            "Положите в кастрюлю, залейте водой и доведите до кипения.",
+            "Снимите пену, добавьте нарезанные лук, морковь и картофель.",
+            "Приправьте и варите на слабом огне до мягкости мяса.",
+            "Подавайте горячим вместе с бульоном."
+          ]
+        }
+      },
+      {
+        id: 28,
+        title: {
+          tr: "Kuzu Tandır",
+          en: "Slow-Roasted Lamb",
+          az: "Kuzu Tandır",
+          ru: "Запечённая баранина (тандыр)"
+        },
+        ingredients: ["kuzu", "zeytinyagi", "baharat"],
+        time: 120,
+        difficulty: "hard",
+        image: "kuzu_tandir.png",
+        description: {
+          tr: "Kuzu etinin düşük ısıda uzun süre pişirilmesiyle hazırlanan tandır.",
+          en: "Lamb slowly roasted at low temperature until fall-off-the-bone tender.",
+          az: "Aşağı temperaturda uzun müddət bişirilən, sümükdən ayrılan yumşaq quzu tandır.",
+          ru: "Баранина, медленно запечённая при низкой температуре до очень мягкого состояния."
+        },
+        instructions: {
+          tr: [
+            "Kuzu etini büyük parça halinde hazırlayın.",
+            "Zeytinyağı ve baharatlarla iyice ovun.",
+            "Fırın poşeti veya kapaklı bir kap içinde yerleştirin.",
+            "Düşük ısıda (yaklaşık 150°C) eti kemiğinden ayrılacak kadar uzun süre pişirin.",
+            "Dinlendirdikten sonra servis edin."
+          ],
+          en: [
+            "Prepare the lamb in large pieces.",
+            "Rub well with olive oil and spices.",
+            "Place in an oven bag or covered baking dish.",
+            "Roast at low heat (around 150°C) until the meat falls off the bone.",
+            "Let rest briefly, then serve."
+          ],
+          az: [
+            "Quzu ətini böyük parçalar şəkilində hazırlayın.",
+            "Zeytun yağı və ədviyyatla hər tərəfini yaxşıca ovun.",
+            "Fırın paketinə və ya qapaqlı soba qabına qoyun.",
+            "Təxminən 150°C-də, ət sümükdən ayrılacaq qədər uzun müddət bişirin.",
+            "Qısa müddət dincəldib sonra servis edin."
+          ],
+          ru: [
+            "Подготовьте баранину крупными кусками.",
+            "Натрите оливковым маслом и специями.",
+            "Поместите в рукав для запекания или форму с крышкой.",
+            "Запекайте при 150°C, пока мясо не начнёт легко отходить от кости.",
+            "Дайте немного отдохнуть и подавайте."
+          ]
+        }
+      },
+      {
+        id: 29,
+        title: {
+          tr: "İçli Köfte",
+          en: "Stuffed Bulgur Meatballs",
+          az: "İçli Köftə",
+          ru: "Кюфта (фаршированные булгуровые котлеты)"
+        },
+        ingredients: ["bulgur", "kiyma", "sogan", "baharat", "yumurta"],
+        time: 90,
+        difficulty: "hard",
+        image: "icli_kofte.png",
+        description: {
+          tr: "İnce bulgurla yoğrulan dış hamurun içine kıymalı harç konularak hazırlanan içli köfte.",
+          en: "Bulgur shells stuffed with spiced minced meat filling.",
+          az: "İncə bulqurdan hazırlanan qabığın içinə qiyməli iç qoyularaq bişirilən içli köftə.",
+          ru: "Котлеты из тонкого булгурового теста, фаршированные мясной начинкой."
+        },
+        instructions: {
+          tr: [
+            "İnce bulguru sıcak suyla ıslatıp şişmeye bırakın.",
+            "Şişen bulgura tuz, baharat ve isterseniz yumurta ekleyip yoğurun.",
+            "İç harç için soğan ve kıymayı kavurup baharat ekleyin.",
+            "Bulgurlu harçtan parçalar alıp ortasını oyun, kıymalı harcı koyup kapatın.",
+            "Kaynar suda haşlayarak veya yağda kızartarak pişirin."
+          ],
+          en: [
+            "Soak fine bulgur in hot water and let it swell.",
+            "Add salt, spices and egg if desired, then knead into a dough.",
+            "For the filling, sauté onion and minced meat, season with spices.",
+            "Take pieces of bulgur dough, hollow the center, add filling and seal.",
+            "Cook in boiling water or deep-fry until golden."
+          ],
+          az: [
+            "İncə bulguru isti su ilə isladıb şişməyə buraxın.",
+            "Şişmiş bulqura duz, ədviyyat və istəyə görə yumurta əlavə edib xəmir kimi yoğurun.",
+            "İç üçün soğan və qiyməni qovurub ədviyyat əlavə edin.",
+            "Bulgurlu xəmirdən parçalar götürüb içini oyuq edin, qiyməli iç qoyub bağlayın.",
+            "Qaynar suda bişirə və ya yağda qızardaraq hazırlaya bilərsiniz."
+          ],
+          ru: [
+            "Залейте мелкий булгур горячей водой и дайте ему набухнуть.",
+            "Добавьте соль, специи и при желании яйцо, хорошо вымесите тесто.",
+            "Для начинки обжарьте лук и фарш, приправьте.",
+            "Сформируйте из булгурового теста шарики, сделайте углубление, наполните фаршем и защипните.",
+            "Отварите в кипящей воде или обжарьте во фритюре до золотистой корочки."
+          ]
+        }
+      },
+
+      /* ===== EKSTRA YENİ YEMEK: ÇILBIR ===== */
+
+      {
+        id: 30,
+        title: {
+          tr: "Çılbır (Yoğurtlu Yumurta)",
+          en: "Çılbır (Poached Eggs with Yogurt)",
+          az: "Çılbır (Yoğurtlu Yumurta)",
+          ru: "Чылбыр (яйца с йогуртом)"
+        },
+        ingredients: ["yumurta", "yogurt", "sarimsak", "tereyagi", "baharat"],
+        time: 20,
+        difficulty: "easy",
+        image: "cilbir.png",
+        description: {
+          tr: "Sarımsaklı yoğurt üzerine haşlanmış yumurta ve kızgın tereyağı ile yapılan geleneksel bir kahvaltı.",
+          en: "Traditional Turkish breakfast of poached eggs served on garlicky yogurt with hot butter.",
+          az: "Sarımsaqlı yoğurt üzərinə qoyulan haşlanmış yumurta və qızğın kərə yağı ilə hazırlanan ənənəvi səhər yeməyi.",
+          ru: "Традиционный турецкий завтрак: яйца-пашот на чесночном йогурте с горячим маслом."
+        },
+        instructions: {
+          tr: [
+            "Yoğurdu bir kasede ezilmiş sarımsak ve tuz ile karıştırın, servis tabağına yayın.",
+            "Geniş bir tencerede suyu kaynatın, az sirke ve tuz ekleyin.",
+            "Yumurtaları tek tek küçük bir kaseye kırıp suya dikkatlice bırakın ve 3–4 dakika haşlayın.",
+            "Haşlanan yumurtaları delikli kaşıkla alıp yoğurdun üzerine yerleştirin.",
+            "Tereyağını küçük bir tavada kızdırın, isterseniz pul biber ekleyin ve yumurtaların üzerine gezdirerek servis edin."
+          ],
+          en: [
+            "Mix yogurt with crushed garlic and salt in a bowl and spread onto a serving plate.",
+            "Bring water to a boil in a wide pot, add a little vinegar and salt.",
+            "Crack the eggs into small bowls and gently slide them into the water, poaching for 3–4 minutes.",
+            "Remove the poached eggs with a slotted spoon and place on top of the yogurt.",
+            "Heat butter in a small pan, optionally add chili flakes, and drizzle over the eggs before serving."
+          ],
+          az: [
+            "Yoğurdu əzilmiş sarımsaq və duzla qarışdırıb servis boşqabına yayın.",
+            "Geniş qazanda suyu qaynadın, bir az sirkə və duz əlavə edin.",
+            "Yumurtaları kiçik kasalara qırıb suya ehtiyatla tökün, 3–4 dəqiqə bişirin.",
+            "Bișmiş yumurtaları dəlikli qaşıqla çıxarıb yoğurdun üzərinə qoyun.",
+            "Kiçik tavada kərə yağını qızdırın, istəsəniz pul bibər əlavə edin və yumurtaların üzərinə gəzdirib servis edin."
+          ],
+          ru: [
+            "Смешайте йогурт с измельчённым чесноком и солью, выложите на тарелку.",
+            "В широкой кастрюле доведите воду до кипения, добавьте немного уксуса и соли.",
+            "Разбейте яйца в маленькие чашки и аккуратно вылейте в воду, варите 3–4 минуты.",
+            "Достаньте яйца шумовкой и выложите на йогурт.",
+            "Растопите сливочное масло, при желании добавьте перец чили и полейте яйца перед подачей."
+          ]
+        }
+      }
+    ];
+
+    const difficultyMap = {
+      easy: { label: "easy", cls: "difficulty-easy" },
+      medium: { label: "medium", cls: "difficulty-medium" },
+      hard: { label: "hard", cls: "difficulty-hard" }
+    };
+
+    const els = {
+      languageButtons: document.querySelectorAll(".language-btn"),
+      checkboxes: document.querySelectorAll(".ingredient-option input"),
+      selectedList: document.getElementById("selectedList"),
+      recipeGrid: document.getElementById("recipeGrid"),
+      emptyState: document.getElementById("emptyState"),
+      mobileToggle: document.getElementById("mobileMenuToggle"),
+      sidebar: document.getElementById("sidebar"),
+      recipeModal: document.getElementById("recipeModal"),
+      closeModal: document.getElementById("closeModal"),
+      modalHeader: document.getElementById("modalHeader"),
+      modalBody: document.getElementById("modalBody"),
+      modeButtons: document.querySelectorAll(".mode-btn"),
+      resultInfo: document.getElementById("resultInfo")
+    };
+
+    let selectedIngredients = [];
+    let matchMode = "any";
+    let currentLang = "tr";
+
+    const app = {
+      init() {
+        this.bindEvents();
+        this.updateSelectedIngredients();
+        this.updateLanguage();
+        this.renderRecipes();
+      },
+      bindEvents() {
+        els.languageButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            els.languageButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentLang = btn.dataset.lang;
+            this.updateLanguage();
+            this.renderRecipes();
+            this.updateSelectedIngredients();
+          });
+        });
+
+        els.checkboxes.forEach((cb) => {
+          cb.addEventListener("change", () => {
+            this.updateSelectedIngredients();
+            this.renderRecipes();
+          });
+        });
+
+        els.modeButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            els.modeButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            matchMode = btn.dataset.mode;
+            this.renderRecipes();
+          });
+        });
+
+        els.mobileToggle.addEventListener("click", () => {
+          els.sidebar.classList.toggle("active");
+        });
+
+        els.closeModal.addEventListener("click", () => this.closeModal());
+
+        els.recipeModal.addEventListener("click", (e) => {
+          if (e.target === els.recipeModal) this.closeModal();
+        });
+      },
+      updateLanguage() {
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.getAttribute("data-i18n");
+          if (translations[currentLang] && translations[currentLang][key]) {
+            element.textContent = translations[currentLang][key];
+          }
+        });
+      },
+      updateSelectedIngredients() {
+        selectedIngredients = Array.from(els.checkboxes)
+          .filter((cb) => cb.checked)
+          .map((cb) => cb.value);
+
+        if (selectedIngredients.length === 0) {
+          els.selectedList.innerHTML = `<span data-i18n="none">${translations[currentLang].none}</span>`;
+        } else {
+          els.selectedList.innerHTML = selectedIngredients
+            .map((ing) => {
+              const label =
+                translations[currentLang][ing] ||
+                translations.tr[ing] ||
+                ing;
+              return `<span>${label}</span>`;
+            })
+            .join("");
+        }
+      },
+      getFilteredRecipes() {
+        if (selectedIngredients.length === 0) return recipes;
+        return recipes.filter((r) => {
+          if (matchMode === "any") {
+            return r.ingredients.some((ing) => selectedIngredients.includes(ing));
+          } else {
+            return selectedIngredients.every((sel) => r.ingredients.includes(sel));
+          }
+        });
+      },
+      renderRecipes() {
+        const filtered = this.getFilteredRecipes();
+
+        if (filtered.length === 0) {
+          els.recipeGrid.style.display = "none";
+          els.emptyState.style.display = "block";
+          els.resultInfo.textContent = `0 ${translations[currentLang].recipesFound}`;
+          return;
+        }
+
+        els.recipeGrid.style.display = "grid";
+        els.emptyState.style.display = "none";
+        els.resultInfo.textContent = `${filtered.length} ${translations[currentLang].recipesFound}`;
+
+        els.recipeGrid.innerHTML = filtered
+          .map((r) => this.createRecipeCard(r))
+          .join("");
+      },
+      createRecipeCard(recipe) {
+        const diff = difficultyMap[recipe.difficulty] || difficultyMap.easy;
+        const title = (recipe.title && (recipe.title[currentLang] || recipe.title.tr)) || "";
+        const description =
+          (recipe.description && (recipe.description[currentLang] || recipe.description.tr)) || "";
+
+        return `
+          <div class="recipe-card" onclick="app.openModal(${recipe.id})">
+            <div class="recipe-image" style="background-image:url('${recipe.image}')">
+              <span class="recipe-badge ${diff.cls}">
+                ${translations[currentLang][diff.label]}
+              </span>
+            </div>
+            <div class="recipe-content">
+              <h3 class="recipe-title">${title}</h3>
+              <div class="recipe-meta">
+                <span><i class="fas fa-clock"></i> ${recipe.time} ${translations[currentLang].minutes}</span>
+                <span><i class="fas fa-signal"></i> ${translations[currentLang][diff.label]}</span>
+              </div>
+              <p class="recipe-description">${description}</p>
+              <div class="recipe-ingredients">
+                <h4>${translations[currentLang].ingredients}</h4>
+                <div class="ingredient-tags">
+                  ${recipe.ingredients
+            .map((ing) => {
+              const label =
+                translations[currentLang][ing] ||
+                translations.tr[ing] ||
+                ing;
+              return `<span class="ingredient-tag">${label}</span>`;
+            })
+            .join("")}
+                </div>
+              </div>
+              <button class="view-details-btn">
+                ${translations[currentLang].viewDetails}
+              </button>
+            </div>
+          </div>
+        `;
+      },
+      openModal(id) {
+        const recipe = recipes.find((r) => r.id === id);
+        if (!recipe) return;
+
+        const diff = difficultyMap[recipe.difficulty] || difficultyMap.easy;
+        const title = (recipe.title && (recipe.title[currentLang] || recipe.title.tr)) || "";
+        const description =
+          (recipe.description && (recipe.description[currentLang] || recipe.description.tr)) || "";
+        const instructionsArr =
+          (recipe.instructions && (recipe.instructions[currentLang] || recipe.instructions.tr)) || [];
+
+        els.modalHeader.style.backgroundImage = `url('${recipe.image}')`;
+
+        els.modalBody.innerHTML = `
+          <h2 class="modal-title">${title}</h2>
+          <div class="modal-meta">
+            <span><i class="fas fa-clock"></i> ${recipe.time} ${translations[currentLang].minutes}</span>
+            <span><i class="fas fa-signal"></i> ${translations[currentLang][diff.label]}</span>
+          </div>
+          <div class="modal-section">
+            <h3><i class="fas fa-align-left"></i> ${translations[currentLang].description}</h3>
+            <p>${description}</p>
+          </div>
+          <div class="modal-section">
+            <h3><i class="fas fa-list-ul"></i> ${translations[currentLang].ingredients}</h3>
+            <ul class="ingredients-list">
+              ${recipe.ingredients
+            .map((ing) => {
+              const label =
+                translations[currentLang][ing] ||
+                translations.tr[ing] ||
+                ing;
+              return `<li>${label}</li>`;
+            })
+            .join("")}
+            </ul>
+          </div>
+          <div class="modal-section">
+            <h3><i class="fas fa-list-ol"></i> ${translations[currentLang].instructions}</h3>
+            <ol class="instructions-list">
+              ${instructionsArr.map((step) => `<li>${step}</li>`).join("")}
+            </ol>
+          </div>
+        `;
+
+        els.recipeModal.style.display = "flex";
+      },
+      closeModal() {
+        els.recipeModal.style.display = "none";
+      }
+    };
+
+    window.app = app;
+    app.init();
+  </script>
+</body>
+</html>
